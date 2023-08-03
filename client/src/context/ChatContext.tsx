@@ -2,7 +2,7 @@ import ioc, { Socket } from 'socket.io-client';
 import { ReactNode, createContext, useEffect, useState } from 'react';
 
 interface ServerToClientEvents {
-    update_chatrooms: (chatrooms: ChatRoomType[]) => void;
+  update_chatrooms: (chatrooms: ChatRoomType[]) => void;
   user_join: (userData: any) => void;
   user_leaves: (userData: any) => void;
 }

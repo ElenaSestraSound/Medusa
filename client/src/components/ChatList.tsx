@@ -1,9 +1,10 @@
 import {Chat} from './Messaging';
-import { ChatContext } from '../context/ChatContext';
+import { ChatContext, ChatContextType } from '../context/ChatContext';
 import { useContext } from 'react';
 
+
 export default function ChatList() {
-  const { roomLists, socket } = useContext(ChatContext);
+  const { roomLists, socket } = useContext(ChatContext) as ChatContextType;
 
   const index = roomLists.findIndex((list) => list.socketId === socket.id);
 
