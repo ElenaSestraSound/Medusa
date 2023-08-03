@@ -1,5 +1,12 @@
 import ioc, { Socket } from 'socket.io-client';
-import { ReactNode, createContext, useEffect, useState } from 'react';
+import {
+  ReactNode,
+  SetStateAction,
+  createContext,
+  useEffect,
+  useState,
+  Dispatch,
+} from 'react';
 
 interface ServerToClientEvents {
   update_chatrooms: (chatrooms: ChatRoomType[]) => void;
@@ -38,16 +45,35 @@ interface RoomListType {
 }
 
 interface ChatRoomType {
-  //chatrroms stored in the db
   name: string;
-  users: number; // array socketIds
+  users: number;
   usernames: string[];
 }
 
 export interface ChatContextType {
   chatrooms: ChatRoomType[];
+  setChatrooms: Dispatch<SetStateAction<ChatRoomType[]>>;
   roomLists: RoomListType[];
-  socket: Socket<ServerToClientEvents, ClientToServerEvents>; // ClientToServerEvents<true>
+  setRoomLists: Dispatch<SetStateAction<RoomListType[]>>;
+  socket: Socket<ServerToClientEvents, ClientToServerEvents>;
+  roomData: RoomDataType;
+  currentRoom: string;
+  setCurrentRoom: Dispatch<SetStateAction<string>>;
+  getAll: () => void;
+  userCount: number;
+  setUserCount: Dispatch<SetStateAction<number>>;
+  joinRoom: () => void;
+  leaveRoom: (room: string) => void;
+  positions: PositionType[];
+  setPositions: Dispatch<SetStateAction<PositionType[]>>;
+  isSelectorClosed: boolean;
+  setSelectorClosed: Dispatch<SetStateAction<boolean>>;
+  isSelectorVisible: boolean;
+  setSelectorVisible: Dispatch<SetStateAction<boolean>>;
+  colors: string[];
+  bgColor: string;
+  setBgColor: Dispatch<SetStateAction<string>>;
+  handleBackgroundColor: () => void;
 }
 
 interface PositionType {
@@ -55,8 +81,7 @@ interface PositionType {
   left: number;
 }
 
-export const ChatContext = createContext<ChatContextType | null>(null); // define context type
-// const socket: Socket = ioc('http://localhost:3001');
+export const ChatContext = createContext<ChatContextType | null>(null);
 const socket: Socket<ServerToClientEvents, ClientToServerEvents> = ioc(
   'http://localhost:3000'
 );
@@ -65,7 +90,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
   // DEFINTIONS
 
   // ROOOMS
-  const [currentRoom, setCurrentRoom] = useState<string>(''); // update rest of room
+  const [currentRoom, setCurrentRoom] = useState<string>('');
   const [chatrooms, setChatrooms] = useState<ChatRoomType[]>([]);
   const [userCount, setUserCount] = useState<number>(0);
   const [roomLists, setRoomLists] = useState<RoomListType[]>([]);
@@ -301,7 +326,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
   //   console.log("roomlists after update ChatContext:", roomLists)
   // })
 
-  const value = {
+  const value: ChatContextType = {
     roomData,
     currentRoom,
     setCurrentRoom,
@@ -329,16 +354,3 @@ export function ChatProvider({ children }: { children: ReactNode }) {
 
   return <ChatContext.Provider value={value}>{children}</ChatContext.Provider>;
 }
-
-// function postOne () {
-//   fetch('http://localhost:3001/chatrooms', {
-//   method: 'POST',
-//   headers: {
-//     'Content-Type': 'application/json'
-//   },
-//   body: JSON.stringify(roomData)
-// })
-//   .then(res => res.json())
-//   .then(res => getAll())
-//   .catch(error => console.log(error));
-// }
