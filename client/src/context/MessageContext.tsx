@@ -1,41 +1,14 @@
-import { Context, createContext, useState } from "react";
-// import { ChatContext } from "./ChatContext";
+import { createContext, useEffect, useState } from "react";
+import { ChatContext, ChatContextType, MessageType, RoomListType, RoomType } from "./ChatContext";
 import { useContext } from "react";
-import { Socket, io } from "socket.io-client";
 
 type MessageContextType = {
   message: string;
-  setMessage: (message: string) => void;
-  messageList: string[];
-  setMessageList: (list: string[]) => void;
-  sendMessage: (room: any) => void;
-  enterRoom: (roomName: string) => void;
-};
-
-//remove when chat context is finished
-type ChatContextType = {
-  chatrooms: {
-    name: string;
-    users: string;
-    usernames: string[];
-  };
-  roomLists: RoomListsType[];
-  setRoom: (room: string) => void;
-  setRoomLists: (f: (lists: RoomListsType[]) => RoomListsType[]) => void,
-  socket: Socket;
-};
-
-type RoomType = {
-  time: string;
-  name: string;
-};
-
-type RoomListsType = {
-  socketId: string;
-  rooms: [{
-    time: string;
-    name: string;
-  }];
+  setMessage: React.Dispatch<React.SetStateAction<string>>;
+  messageList: MessageType[];
+  setMessageList: React.Dispatch<React.SetStateAction<MessageType[]>>;
+  sendMessage: (room: any) => Promise<void>;
+  handleRoomButtonClick: (roomName: string) => void;
 };
 
 const MessageContext = createContext<MessageContextType | null>(null);
@@ -45,28 +18,9 @@ type IMessageProviderProps = {
 };
 
 function MessageProvider ({ children }: IMessageProviderProps) {
-  //remove when chat context is finished
-  const dummyChatContext: ChatContextType = {
-    chatrooms: {
-      name: "",
-      users: "",
-      usernames: []
-    },
-    roomLists: {
-      socketId: "",
-      rooms: {
-        time: "",
-        name: ""
-      }
-    },
-    setRoom: (room: string) => { },
-    setRoomLists: () => { },
-    socket: io()
-  };
-  // const { socket, setRoom, roomLists, setRoomLists } = useContext<ChatContextType>(ChatContext);
-  const { socket, setRoom, roomLists, setRoomLists } = dummyChatContext;
+  const { socket, setRoom: setCurrentRoom, roomLists, setRoomLists } = useContext(ChatContext) as ChatContextType;
   const [message, setMessage] = useState("");
-  const [messageList, setMessageList] = useState([]);
+  const [messageList, setMessageList] = useState<MessageType[]>([]);
 
   function enterRoom (roomName: string) {
     const existingRoom = roomLists.some((list) =>
@@ -77,7 +31,7 @@ function MessageProvider ({ children }: IMessageProviderProps) {
       console.log("You are already in this room.");
       return;
     }
-    setRoom(roomName);
+    setCurrentRoom(roomName);
     const roomData = {
       name: roomName,
       time: new Date(Date.now()).getHours() + ":" + new Date(Date.now()).getMinutes(),
@@ -91,10 +45,10 @@ function MessageProvider ({ children }: IMessageProviderProps) {
         ...prevRoomLists[index].rooms,
         { name: roomName, time: roomData.time },
       ];
-      const updatedList: RoomListsType[] = [{
+      const updatedList: RoomListType = {
         socketId: socket.id,
         rooms: updatedRooms,
-      }];
+      };
       const updatedRoomLists = [...prevRoomLists];
       updatedRoomLists[index] = updatedList;
 
@@ -104,7 +58,7 @@ function MessageProvider ({ children }: IMessageProviderProps) {
     });
   }
 
-  const sendMessage = async (room) => {
+  const sendMessage = async (room: string) => {
     if (room !== "") {
       const messageData = {
         user: socket.id,
@@ -115,7 +69,7 @@ function MessageProvider ({ children }: IMessageProviderProps) {
         socketId: socket.id
       };
       if (message !== "") {
-        await socket.emit("send_message", messageData);
+        socket.emit("send_message", messageData);
         console.log('message sent:', messageData);
         setMessageList((list) => [...list, messageData]);
         setMessage("");
@@ -157,7 +111,14 @@ function MessageProvider ({ children }: IMessageProviderProps) {
 
   }, []);
 
-  const value = { message: "" };
+  const value: MessageContextType = {
+    message,
+    setMessage,
+    messageList,
+    setMessageList,
+    sendMessage,
+    handleRoomButtonClick: enterRoom
+  };
   return (
     < MessageContext.Provider value={value} >
       {children}

@@ -8,43 +8,46 @@ import {
   Dispatch,
 } from 'react';
 
-interface ServerToClientEvents {
+export interface ServerToClientEvents {
   update_chatrooms: (chatrooms: ChatRoomType[]) => void;
   user_join: (userData: UserDataType) => void;
   user_leaves: (userData: UserDataType) => void;
+  joined_empty_room: (data: MessageType) => void;
+  receive_message: (data: MessageType) => void;
 }
 
-interface ClientToServerEvents {
+export interface ClientToServerEvents {
   join_room: (roomData: RoomDataType) => void;
   leave_room: (room: string) => void;
   create_room: (roomName: string) => void;
+  send_message: (messageData: MessageType) => void;
 }
 
-interface UserDataType {
+export interface UserDataType {
   room: string;
   username: string;
   userCount: number;
   usernames: string[];
 }
 
-interface RoomDataType {
+export interface RoomDataType {
   name: string;
   time: string;
   creator: string;
 }
 
-interface RoomType {
+export interface RoomType {
   time: string;
   name: string;
 }
 
-interface RoomListType {
+export interface RoomListType {
   // is the user
   socketId: string;
   rooms: RoomType[];
 }
 
-interface ChatRoomType {
+export interface ChatRoomType {
   name: string;
   users: number;
   usernames: string[];
@@ -58,7 +61,7 @@ export interface ChatContextType {
   socket: Socket<ServerToClientEvents, ClientToServerEvents>;
   roomData: RoomDataType;
   currentRoom: string;
-  setCurrentRoom: Dispatch<SetStateAction<string>>;
+  setRoom: Dispatch<SetStateAction<string>>;
   getAll: () => void;
   userCount: number;
   setUserCount: Dispatch<SetStateAction<number>>;
@@ -76,9 +79,18 @@ export interface ChatContextType {
   handleBackgroundColor: () => void;
 }
 
-interface PositionType {
+export interface PositionType {
   top: number;
   left: number;
+}
+
+export interface MessageType {
+  user: string,
+  room: string,
+  message: string,
+  time: string,
+  sender: string,
+  socketId: string;
 }
 
 export const ChatContext = createContext<ChatContextType | null>(null);
@@ -86,7 +98,7 @@ const socket: Socket<ServerToClientEvents, ClientToServerEvents> = ioc(
   'http://localhost:3000'
 );
 
-export function ChatProvider({ children }: { children: ReactNode }) {
+export function ChatProvider ({ children }: { children: ReactNode; }) {
   // DEFINTIONS
 
   // ROOOMS
@@ -104,7 +116,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
   ];
   const [bgColor, setBgColor] = useState(colors[0]);
 
-  function handleBackgroundColor() {
+  function handleBackgroundColor () {
     const randomColor = colors[Math.floor(Math.random() * colors.length)];
     setBgColor(randomColor);
     console.log('I was executed');
@@ -127,7 +139,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
   // LOGIC
   // ROUTES
 
-  function getAll() {
+  function getAll () {
     fetch('http://localhost:3001/chatrooms')
       .then((res) => res.json())
       .then((data) => setChatrooms(data))
@@ -254,8 +266,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
       });
       setChatrooms(updatedChatrooms);
       console.log(
-        `User ${userData.username} joined the chatroom ${
-          userData.room
+        `User ${userData.username} joined the chatroom ${userData.room
         }. Users: ${userData.userCount}. Usernames: ${userData.usernames.join(
           ', '
         )}`
@@ -284,8 +295,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
       });
       setChatrooms(updatedChatrooms);
       console.log(
-        `User ${userData.username} left the chatroom ${userData.room}. Users: ${
-          userData.userCount
+        `User ${userData.username} left the chatroom ${userData.room}. Users: ${userData.userCount
         }. Usernames: ${userData.usernames.join(', ')}`
       );
     });
@@ -329,7 +339,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
   const value: ChatContextType = {
     roomData,
     currentRoom,
-    setCurrentRoom,
+    setRoom: setCurrentRoom,
     chatrooms,
     setChatrooms,
     getAll,
