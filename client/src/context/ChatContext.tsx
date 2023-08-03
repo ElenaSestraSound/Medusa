@@ -1,11 +1,23 @@
-import * as io from 'socket.io-client';
-import {
-  ReactNode,
-  createContext,
-  useContext,
-  useEffect,
-  useState,
-} from 'react';
+import ioc, { Socket } from 'socket.io-client';
+import { ReactNode, createContext, useEffect, useState } from 'react';
+
+interface ServerToClientEvents {
+    update_chatrooms: (chatrooms: ChatRoomType[]) => void;
+  user_join: (userData: any) => void;
+  user_leaves: (userData: any) => void;
+}
+
+interface ClientToServerEvents {
+  join_room: (roomData: RoomDataType) => void;
+  leave_room: (room: string) => void;
+  create_room: (roomName: string) => void;
+}
+
+interface RoomDataType {
+  name: string;
+  time: string;
+  creator: string;
+}
 
 interface RoomType {
   time: string;
@@ -25,9 +37,10 @@ interface ChatRoomType {
   usernames: string[];
 }
 
-interface ChatContextType {
+export interface ChatContextType {
   chatrooms: ChatRoomType[];
   roomLists: RoomListType[];
+  socket: Socket<ServerToClientEvents, ClientToServerEvents>; // ClientToServerEvents<true>
 }
 
 interface PositionType {
@@ -36,7 +49,10 @@ interface PositionType {
 }
 
 export const ChatContext = createContext<ChatContextType | null>(null); // define context type
-const socket = io.connect('http://localhost:3001');
+// const socket: Socket = ioc('http://localhost:3001');
+const socket: Socket<ServerToClientEvents, ClientToServerEvents> = ioc(
+  'http://localhost:3000'
+);
 
 export function ChatProvider({ children }: { children: ReactNode }) {
   // DEFINTIONS
@@ -305,10 +321,6 @@ export function ChatProvider({ children }: { children: ReactNode }) {
   };
 
   return <ChatContext.Provider value={value}>{children}</ChatContext.Provider>;
-}
-
-export function useChat() {
-  return useContext(ChatContext);
 }
 
 // function postOne () {
