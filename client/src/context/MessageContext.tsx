@@ -2,7 +2,7 @@ import { createContext, useEffect, useState } from "react";
 import { ChatContext, ChatContextType, MessageType, RoomListType, RoomType } from "./ChatContext";
 import { useContext } from "react";
 
-type MessageContextType = {
+export type MessageContextType = {
   message: string;
   setMessage: React.Dispatch<React.SetStateAction<string>>;
   messageList: MessageType[];
