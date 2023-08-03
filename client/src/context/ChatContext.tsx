@@ -3,14 +3,21 @@ import { ReactNode, createContext, useEffect, useState } from 'react';
 
 interface ServerToClientEvents {
   update_chatrooms: (chatrooms: ChatRoomType[]) => void;
-  user_join: (userData: any) => void;
-  user_leaves: (userData: any) => void;
+  user_join: (userData: UserDataType) => void;
+  user_leaves: (userData: UserDataType) => void;
 }
 
 interface ClientToServerEvents {
   join_room: (roomData: RoomDataType) => void;
   leave_room: (room: string) => void;
   create_room: (roomName: string) => void;
+}
+
+interface UserDataType {
+  room: string;
+  username: string;
+  userCount: number;
+  usernames: string[];
 }
 
 interface RoomDataType {
@@ -33,7 +40,7 @@ interface RoomListType {
 interface ChatRoomType {
   //chatrroms stored in the db
   name: string;
-  users: string; // array socketIds
+  users: number; // array socketIds
   usernames: string[];
 }
 
