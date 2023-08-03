@@ -1,17 +1,25 @@
 import * as io from 'socket.io-client';
-import { ReactNode, createContext, useEffect, useState } from 'react';
+import {
+  ReactNode,
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+} from 'react';
 
 interface RoomType {
   time: string;
   name: string;
 }
 
-interface RoomListType { // is the user
+interface RoomListType {
+  // is the user
   socketId: string;
   rooms: RoomType[];
 }
 
-interface ChatRoomType { //chatrroms stored in the db
+interface ChatRoomType {
+  //chatrroms stored in the db
   name: string;
   users: string; // array socketIds
   usernames: string[];
@@ -19,14 +27,13 @@ interface ChatRoomType { //chatrroms stored in the db
 
 interface ChatContextType {
   chatrooms: ChatRoomType[];
+  roomLists: RoomListType[];
 }
 
 interface PositionType {
   top: number;
   left: number;
 }
-
-
 
 export const ChatContext = createContext<ChatContextType | null>(null); // define context type
 const socket = io.connect('http://localhost:3001');
@@ -98,18 +105,18 @@ export function ChatProvider({ children }: { children: ReactNode }) {
           const index = prevRoomLists.findIndex(
             (list) => list.socketId === socket.id
           );
-         
-        const updatedRooms = [
-          ...prevRoomLists[index].rooms,
-          { name: currentRoom, time: roomData.time },
-        ];
-        const updatedList = {
-          socketId: socket.id,
-          rooms: updatedRooms,
-        };
-        const updatedRoomLists = [...prevRoomLists];
-        updatedRoomLists[index] = updatedList;
-        return updatedRoomLists;
+
+          const updatedRooms = [
+            ...prevRoomLists[index].rooms,
+            { name: currentRoom, time: roomData.time },
+          ];
+          const updatedList = {
+            socketId: socket.id,
+            rooms: updatedRooms,
+          };
+          const updatedRoomLists = [...prevRoomLists];
+          updatedRoomLists[index] = updatedList;
+          return updatedRoomLists;
         });
       } else {
         socket.emit('create_room', currentRoom);
@@ -141,7 +148,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
       const index = prevRoomLists?.findIndex(
         (list) => list.socketId === socket.id
       );
-     
+
       const updatedRooms = [
         ...prevRoomLists[index].rooms,
         { name: currentRoom, time: roomData.time },
@@ -153,7 +160,6 @@ export function ChatProvider({ children }: { children: ReactNode }) {
       const updatedRoomLists = [...prevRoomLists];
       updatedRoomLists[index] = updatedList;
       return updatedRoomLists;
-      
     });
   };
 
@@ -299,6 +305,10 @@ export function ChatProvider({ children }: { children: ReactNode }) {
   };
 
   return <ChatContext.Provider value={value}>{children}</ChatContext.Provider>;
+}
+
+export function useChat() {
+  return useContext(ChatContext);
 }
 
 // function postOne () {
