@@ -5,7 +5,7 @@ import { ClientSocketType } from '../models/types';
 import { db } from '../models/chatroomModel';
 
 import { createMockClientSocket } from './mockSocket';
-import { mockChatRoom, mockChatRoomsArray } from './mocks';
+import { mockChatRoom, mockEmptyChatRoom, mockChatRoomsArray } from './mocks';
 
 import {
   handleCreateRoom,
@@ -76,50 +76,52 @@ describe('Test function \'handleCreateRoom\'', () => {
 });
 
 
-// describe('Test function \'handleJoinRoom\'', () => {
+describe('Test function \'handleJoinRoom\'', () => {
 
-//   let mockSocket: any;
+  let mockSocket: any;
   
-//   beforeEach(() => {
-//     mockSocket = createMockClientSocket('test_socket_1');
-//     jest.clearAllMocks();
-//     db.findChatroom = jest.fn().mockResolvedValue(mockChatRoom);
-//     db.updateChatroom = jest.fn().mockResolvedValue(null);
-//     io.emit = jest.fn();
-//   });
+  beforeEach(() => {
+    mockSocket = createMockClientSocket('test_socket_123');
+    jest.clearAllMocks();
+    db.findChatroom = jest.fn().mockResolvedValue(mockChatRoom);
+    db.updateChatroom = jest.fn().mockResolvedValue(null);
+    io.emit = jest.fn();
+  });
 
-//   it('should join an existing room and emit user_join', async () => {
-//     await handleJoinRoom('testRoom_1', mockSocket as Socket);
-//     expect(mockSocket.join).toHaveBeenCalledWith('testRoom_1');
-//     expect(db.updateChatroom).toHaveBeenCalledWith('testRoom_1', {
-//       ...mockChatRoom,
-//       users: 1,
-//       usernames: ['mockSocketId'],
-//     });
-//     expect(io.emit).toHaveBeenCalledWith('user_join', {
-//       room: 'testRoom_1',
-//       username: 'mockSocketId',
-//       userCount: 1,
-//       usernames: ['mockSocketId'],
-//     });
-//   });
+  it('should join an existing room and emit \'user_join\'', async () => {
+    const originalMockChatRoom = { ...mockChatRoom };
+    await handleJoinRoom(mockChatRoom.name, mockSocket as Socket);
+    expect(mockSocket.join).toHaveBeenCalledWith(mockChatRoom.name);
+    expect(db.updateChatroom).toHaveBeenCalledWith(mockChatRoom.name, {
+      ...originalMockChatRoom,
+      users: originalMockChatRoom.users + 1,
+    });
+    expect(mockChatRoom?.usernames).toContain(mockSocket.id);
+    expect(io.emit).toHaveBeenCalledWith('user_join', {
+      room: mockChatRoom.name,
+      username: mockSocket.id,
+      userCount: originalMockChatRoom.users + 1,
+      usernames: mockChatRoom.usernames
+    });
+  });
 
-//   it('should emit joined_empty_room if the user is the only one in the room', async () => {
-//     await handleJoinRoom('testRoom_2', mockSocket as Socket);
-//     expect(mockSocket.emit).toHaveBeenCalledWith('joined_empty_room', {
-//       room: 'testRoom_2',
-//     });
-//   });
+  it('should emit \'joined_empty_room\' if the user is the only one in the room', async () => {
+    db.findChatroom = jest.fn().mockResolvedValue(mockEmptyChatRoom);
+    await handleJoinRoom(mockEmptyChatRoom.name, mockSocket as Socket);
+    expect(io.emit).toHaveBeenCalledWith('joined_empty_room', {
+      room: mockEmptyChatRoom.name,
+    });
+  });
+  
+  it('should not join the room if it does not exist', async () => {
+    db.findChatroom = jest.fn().mockResolvedValue(null);
+    await handleJoinRoom('nonexistentRoom', mockSocket as Socket);
+    expect(mockSocket.join).not.toHaveBeenCalled();
+    expect(io.emit).not.toHaveBeenCalled();
+    expect(mockSocket.emit).not.toHaveBeenCalled();
+  });
 
-//   it('should not join the room if it does not exist', async () => {
-//     db.findChatroom = jest.fn().mockResolvedValue(null);
-//     await handleJoinRoom('nonexistentRoom', mockSocket as Socket);
-//     expect(mockSocket.join).not.toHaveBeenCalled();
-//     expect(io.emit).not.toHaveBeenCalled();
-//     expect(mockSocket.emit).not.toHaveBeenCalled();
-//   });
-
-// });
+});
 
 describe('Test function \'handleLeaveRoom\'', () => {
 });

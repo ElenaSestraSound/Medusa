@@ -22,6 +22,13 @@ const mockChatRoom: ChatRoom = {
   creator: "Admin",
 };
 
+const mockEmptyChatRoom: ChatRoom = {
+  name: "testRoom_masdfio4325590mlkdvl",
+  users: 0,
+  usernames: [],
+  creator: "Admin",
+};
+
 const mockChatRoomsArray: ChatRoom[] = [
   mockChatRoom,
   {
@@ -33,4 +40,4 @@ const mockChatRoomsArray: ChatRoom[] = [
 ];
 
 
-export { mockMessage, mockUserData, mockChatRoom, mockChatRoomsArray };
+export { mockMessage, mockUserData, mockChatRoom, mockEmptyChatRoom, mockChatRoomsArray };

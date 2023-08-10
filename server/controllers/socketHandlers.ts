@@ -34,7 +34,7 @@ async function handleJoinRoom(roomName: string, socket: Socket) {
   } as UserData);
 
   if (chatroom.users <= 1) {
-    socket.emit('joined_empty_room', {
+    io.emit('joined_empty_room', {
       room: chatroom.name,
     });
   }
