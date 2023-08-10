@@ -25,6 +25,7 @@ type ClientSocketType = {
   listeners: { [key: string]: Function };
   on: (event: string, callback: Function) => void;
   emit: (event: string, message: any) => void;
+  join: (roomName: string) => void;
   disconnect: () => void;
   close: () => void;
 };

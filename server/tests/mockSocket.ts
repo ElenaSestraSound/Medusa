@@ -18,6 +18,7 @@ const createMockClientSocket = (id: string): ClientSocketType => {
         this.listeners[event](message);
       }
     },
+    join: function () {},
     disconnect: function () {
       if (this.connected) {
         this.connected = false;
