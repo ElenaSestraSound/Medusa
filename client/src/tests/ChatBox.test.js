@@ -1,5 +1,8 @@
-/* eslint-disable testing-library/no-wait-for-multiple-assertions */
-/* eslint-disable testing-library/no-unnecessary-act */
+// @ts-nocheck
+/**
+ * @jest-environment jsdom
+ */
+import { jest } from '@jest/globals';
 import React from 'react';
 import ChatBox from '../components/ChatBoxContainer/ChatBox';
 import { render, screen, waitFor } from '@testing-library/react';
@@ -13,6 +16,7 @@ const mockHandleBackgroundColor = jest.fn();
 const mockSendMessage = jest.fn();
 const mockRoomName = 'Testing';
 const mockSocketId = 'socket_';
+const mockBgColor = 'rgb(130,125,188)';
 const mockMessageList = [
   {
     user: 'bob',
@@ -28,34 +32,34 @@ const mockMessageList = [
   },
 ];
 
-describe.skip('Chat Box', () => {
+describe('Chat Box', () => {
   it('should display messages in the chat window', async () => {
     render(
       <ChatContext.Provider value={mockChatContext}>
         <ChatBox
           messageList={mockMessageList}
-          room={mockRoomName}
-          socket={mockSocketId}
+          roomName={mockRoomName}
+          socketId={mockSocketId}
           sendMessage={mockSendMessage}
           handleBackgroundColor={mockHandleBackgroundColor}
+          bgColor={mockBgColor}
         />
       </ChatContext.Provider>
     );
 
     await waitFor(() => {
-      const messageContent1 = screen.getByTestId('message-content-0');
-      const messageContent2 = screen.getByTestId('message-content-1');
+      const messageContent = screen.getByText(mockMessageList[0].message);
 
-      expect(messageContent1).toBeInTheDocument();
-      expect(messageContent1).toHaveTextContent(mockMessageList[0].message);
-
-      expect(messageContent2).toBeInTheDocument();
-      expect(messageContent2).toHaveTextContent(mockMessageList[1].message);
+      expect(messageContent).toBeTruthy();
+    });
+    await waitFor(() => {
+      const messageContent = screen.getByText(mockMessageList[1].message);
+      expect(messageContent).toBeTruthy();
     });
   });
 
-  it('should display the user and the time of message', () => {
-    render(
+  it('should display the user and the time of message', async () => {
+    await render(
       <ChatContext.Provider value={mockChatContext}>
         <ChatBox
           messageList={mockMessageList}
@@ -70,7 +74,7 @@ describe.skip('Chat Box', () => {
     const user = screen.getByText(mockMessageList[0].user);
     const time = screen.getByText(mockMessageList[1].time);
 
-    expect(user).toBeInTheDocument();
-    expect(time).toBeInTheDocument();
+    expect(user).toBeTruthy();
+    expect(time).toBeTruthy();
   });
 });

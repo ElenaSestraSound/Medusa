@@ -7,7 +7,7 @@ import { socket } from '../../socket';
 import { Message, MessageDetails } from '../types';
 import { Event, useSocket } from '../../hooks/useSocket';
 import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+// import 'react-toastify/dist/ReactToastify.css';
 
 type IChatBoxListProps = {
   handleBackgroundColor: () => void;

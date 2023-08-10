@@ -77,7 +77,7 @@ export default function ChatBox({
 
                   <div
                     className='text-sm mb-2 font-normal break-words'
-                    data-testid={`message-content-${i}`}>
+                    data-testid={`message-content`}>
                     {messageContent.message}
                   </div>
                   <div ref={messagesEndRef}></div>

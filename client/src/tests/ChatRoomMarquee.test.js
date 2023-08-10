@@ -1,3 +1,7 @@
+/**
+ * @jest-environment jsdom
+ */
+import { jest } from '@jest/globals';
 import React from 'react';
 import userEvent from '@testing-library/user-event';
 import RoomList from '../components/ChatRoomManager/ChatRoomMarquee';
@@ -5,6 +9,9 @@ import { render, screen } from '@testing-library/react';
 import { ChatContext } from '../context/ChatContext';
 
 const mockHandleBackgroundColor = jest.fn();
+const mockSetSelectorVisible = jest.fn();
+const mockSetSelectorClosed = jest.fn();
+
 const mockChatContext = {
   chatrooms: [
     { name: 'Fiddle Faddle' },
@@ -12,15 +19,17 @@ const mockChatContext = {
     { name: 'Pf4ffing' },
   ],
   joinRoom: jest.fn(),
-  setSelectorVisible: jest.fn(),
-  setSelectorClosed: jest.fn(),
 };
 
-describe.only('Room List component', () => {
-  it('should render an array of chatrooms as buttons', () => {
+describe('Room List component', () => {
+  it('should render an array of chatrooms as buttons', async () => {
     render(
       <ChatContext.Provider value={mockChatContext}>
-        <RoomList handleBackgroundColor={mockHandleBackgroundColor} />
+        <RoomList
+          handleBackgroundColor={mockHandleBackgroundColor}
+          setSelectorClosed={mockSetSelectorClosed}
+          setSelectorVisible={mockSetSelectorVisible}
+        />
       </ChatContext.Provider>
     );
 
@@ -31,7 +40,7 @@ describe.only('Room List component', () => {
     expect(buttonsContent).toEqual(chatroomNames);
   });
 
-  it('should call the join room function with the correct name', () => {
+  it('should call the join room function with the correct name', async () => {
     render(
       <ChatContext.Provider value={mockChatContext}>
         <RoomList handleBackgroundColor={mockHandleBackgroundColor} />

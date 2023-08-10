@@ -19,11 +19,10 @@ export default function ResizableDraggableComponent({
       <Resizable
         className='flex-col rounded-sm text-sm shadow-lg bg-white/[.07] backdrop-blur-md z-[10000]'
         style={{ position: 'absolute', ...position }}
-        defaultSize={{width: 250, height: 300,}}
-        minWidth={250}
-        minHeight={300}
-        >
-          {children}
+        defaultSize={{ width: 300, height: 350 }}
+        minWidth={300}
+        minHeight={350}>
+        {children}
       </Resizable>
     </Draggable>
   );

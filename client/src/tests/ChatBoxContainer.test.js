@@ -1,4 +1,6 @@
-/* eslint-disable testing-library/no-unnecessary-act */
+/**
+ * @jest-environment jsdom
+ */
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { ChatContext } from '../context/ChatContext';
@@ -16,7 +18,7 @@ const mockChatContext = {
   socket: 'socket_',
 };
 
-describe.skip('Chat box container', () => {
+describe('Chat box container', () => {
   it('should render a list of chat boxes', () => {
     render(
       <ChatContext.Provider value={mockChatContext}>

@@ -1,13 +1,16 @@
-/* eslint-disable testing-library/no-unnecessary-act */
+/**
+ * @jest-environment jsdom
+ */
+import { jest } from '@jest/globals';
 import React from 'react';
 import userEvent from '@testing-library/user-event';
-import { render, screen, act } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import ChatBoxHeader from '../components/ChatBoxContainer/ChatBoxHeader';
 
 const mockName = 'Poodles';
 const mockLeaveRoom = jest.fn();
 
-describe.skip('Chat box header', () => {
+describe('Chat box header', () => {
   it('should show the name of the room', () => {
     render(<ChatBoxHeader roomName={mockName} leaveRoom={mockLeaveRoom} />);
 

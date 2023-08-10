@@ -1,10 +1,13 @@
-/* eslint-disable testing-library/no-unnecessary-act */
+/**
+ * @jest-environment jsdom
+ */
+import { jest } from '@jest/globals';
 import React from 'react';
 import { render, screen, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import ChatInput from '../components/ChatBoxContainer/ChatBoxInput';
 
-describe.skip('Chat input', () => {
+describe('Chat input', () => {
   it('should call sendMessage function with the correct message', () => {
     const mockSendMessage = jest.fn();
 
@@ -15,6 +18,7 @@ describe.skip('Chat input', () => {
 
     const testMessage = 'Fiddle Faddle';
 
+    // eslint-disable-next-line testing-library/no-unnecessary-act
     act(() => {
       userEvent.type(inputElement, testMessage);
       userEvent.click(buttonElement);
@@ -30,11 +34,10 @@ describe.skip('Chat input', () => {
     render(<ChatInput sendMessage={() => {}} />);
 
     const inputElement = screen.getByTestId('message-input');
-
+    // eslint-disable-next-line testing-library/no-unnecessary-act
     act(() => {
       userEvent.type(inputElement, testInput);
     });
-
     expect(inputElement.value).toBe(testInput);
   });
 });
