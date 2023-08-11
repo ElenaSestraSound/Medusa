@@ -15,6 +15,7 @@ const createMockClientSocket = (id: string): ClientSocketType => {
     },
     emit: jest.fn(),
     join: jest.fn(),
+    leave: jest.fn(), 
     disconnect: function () {
       if (this.connected) {
         this.connected = false;
